@@ -1,0 +1,217 @@
+﻿*{
+        font-family:"微软雅黑";
+}
+QPushButton
+{
+    padding: -1;
+    min-width:50px;
+    min-height:20px;
+    border-radius: 6px;
+    border-style:flat;
+    /*background:qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(80,140,255,255),
+    stop:0.5 rgba(135,206,250,255),
+    stop:1 rgba(80,140,255,255));*/
+    color:#3399FF;
+    background: rgba(253,253,254,255);
+}
+QPushButton:disabled
+{
+    color:gray;
+    background:darkgray;
+}
+QPushButton:focused {
+background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 rgba(255,240,160,240)
+                             stop: 0.5 rgba(255,216,76,255),
+                             stop: 1 rgba(255,240,160,240) );
+}
+QPushButton:hover {
+background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 rgba(255,240,160,240)
+                             stop: 0.5 rgba(255,216,76,255),
+                             stop: 1 rgba(255,240,160,240) );
+}
+QPushButton:pressed{
+background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 rgba(255,216,76,240)
+                             stop: 0.5 rgba(255,200,50,255),
+                             stop: 1 rgba(255,216,76,240) );
+}
+
+/*QLineEdit,QTextEdit {
+     background-color:qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
+         stop: 0 #F0FFFF, stop: 1 #C6E2FF);
+}*/
+
+QGroupBox {
+        border: 1px solid #6593CF;
+        border-radius: 5px;
+        margin-top: 15px;
+        padding-top:15px;
+        font-size:15px;
+        font-weight:800;
+}
+
+QGroupBox::title {
+        subcontrol-origin: margin;
+        subcontrol-position: top center;
+        padding: 5px 3px;
+        color: white;
+        background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0,153,255, 200),
+        stop:0.5 rgba(51,153,255,255),stop:1 rgba(0,153,255,200));
+        border-radius: 5px;
+        border: 1px solid #6593CF;
+}
+
+QLabel {
+     border-radius: 4px;
+     padding: 2px;
+     border-style: flat;
+}
+/*global style of QTabWidget begins*/
+QTabWidget::pane {
+        border-top: 2px solid dodgerblue;
+}
+
+QTabWidget::tab-bar {
+        left: 10px;
+}
+
+QTabBar::tab {
+background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                             stop: 0 rgba(214,232,255,200),
+                             stop: 0.8 rgba(214,232,255,255));
+
+        border-bottom-color: #C2C7CB; /* same as the pane color */
+        border-top-left-radius: 20;
+        border-top-right-radius: 4px;
+        min-width: 20ex;
+        padding: 3px 8px;
+}
+
+QTabBar::tab:selected, QTabBar::tab:hover {
+background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                             stop: 0.08 rgba(255,255,255,205),
+                             stop: 0.8 rgba(255,232,153,255) );
+}
+
+QTabBar::tab:selected {
+color:#3399FF;
+border-color: #9B9B9B;
+border-bottom-color: #C2C7CB;
+background: rgba(253,253,254,255);
+}
+
+QTabBar::tab:!selected {
+   margin-top: 2px;
+}
+/*global style of QTabWidget ends*/
+/*global style of QListView begins*/
+QListView {
+     show-decoration-selected: 1; /* make the selection span the entire width of the view */
+ }
+ QListView::item:selected {
+     border: 0;
+ }
+
+ QListView::item:selected:!active {
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                 stop: 0 #ABAFE5, stop: 1 #00CCFF);
+ }
+
+ QListView::item:selected:active {
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                 stop: 0 #3399FF, stop: 1 #0272BC);
+ }
+
+ QListView::item:hover {
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                 stop: 0 #FAFBFE, stop: 1 #DCDEF1);
+ }
+/*global style of QListView ends*/
+/*global style of QComboBox begins*/
+QComboBox::disabled{
+    color:wheat;
+    background:royalblue;
+}
+QComboBox:on { /* shift the text when the popup opens */
+    padding-top: 3px;
+    padding-left: 4px;
+}
+/*global style of QComboBox ends*/
+QSpinBox:focus{background:#CCFF99;}
+QTableWidget {
+     selection-background-color: rgba(0,153,255,200);
+}
+CMainWindow{
+    background:qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(122,150,223, 255),
+    stop:0.35 rgba(216,228,248, 255));
+}
+CTestSettingWindow{
+    background:rgba(216,228,248, 255);
+}
+QGroupBox[type="special"]{
+border: 1px solid lightblue;
+border-radius: 5px;
+margin-top: 0;
+padding-top:0;
+font-size:15px;
+font-weight:800;
+background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+             stop: 0 #fafafa, stop: 0.4 #f4f4f4,
+             stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);
+}
+QGroupBox[type="special"]::title {
+    width:0;height:0;
+    padding: 0;
+    background:#949494;
+}
+QPushButton[selwindow-btn="true"]
+{
+    /*font:18px '隶书';*/
+    font:15px;
+    min-height:26px;
+    max-height:26px;
+}
+QPushButton#login{
+    font:15px;
+    min-height:26px;
+    max-height:26px;
+    min-width:80px;
+    max-width:80px;
+}
+QPushButton[hasIcon="true"]
+{
+    min-width:160px;max-width:160px;
+    min-height:25px;max-height:25px;
+}
+QPushButton[page="overview"]
+{
+    font: 15px;
+    min-width:200px;max-width:200px;
+    min-height:26px;max-height:26px;
+}
+QPushButton[type="startbtn"]
+{
+    font: 14px;
+    min-width:200px;max-width:200px;
+    min-height:30px;max-height:30px;
+}
+QPushButton[page="fulltest-topbtn"]
+{
+    font: 14px;
+    min-width:200px;max-width:200px;
+    min-height:26px;max-height:26px;
+}
+/*测试结果样式*/
+QGroupBox[page="common"]{
+    min-width:300px;max-width:300px;
+    min-height:150px;max-height:150px;
+}
+QGroupBox[page="common"] > QTextEdit{
+
+}
+QGroupBox[page="common"] > QPushButton{
+    margin-left:85px;
+    min-width:180px;max-width:180px;
+    min-height:26px;max-height:26px;
+}
+
+
