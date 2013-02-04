@@ -561,6 +561,11 @@ quint8 calResistor(int a)
 
 int getTheorySample(int min,int max,int val,int range)
 {
+    return   val;
+}
+
+int getTheorySampleOld(int min,int max,int val,int range)
+{
     double step = (double)range/((double)max-(double)min);
 
     return   (int)((val-min)*step);

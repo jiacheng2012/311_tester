@@ -59,7 +59,7 @@ void CFunctionTestWindow::listLayoutClicked(QModelIndex index)
     if( index.row() == _listLayout->property("li-row").toInt() )
         return;
     //***判断设备连接状态
-    if(((CApp*)qApp)->_tjob->_status232 == 0)
+    /*if(((CApp*)qApp)->_tjob->_status232 == 0)
     {
        emit newMessage(tr("仪表串口没有连接，请先连接"),1);
        return;
@@ -68,7 +68,7 @@ void CFunctionTestWindow::listLayoutClicked(QModelIndex index)
     {
        emit newMessage(tr("信号箱没有连接，请先连接"),1);
        return;
-    }
+    }*/
 
      MeterAskFrame_0x16 b={_METER_FRAME_METER_PARA_ASK_COMMAND_};
      ((CApp*)qApp)->_tjob->setupSendFrame232(data16FromFrame(b),_MS_50_);

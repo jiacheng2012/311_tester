@@ -521,6 +521,7 @@ QByteArray arrangeByte(int val,int num);
 QByteArray arrangeByteO(int val,int num);
 quint8 calResistor(int a);
 int getTheorySample(int min,int max,int val,int range);
+int getTheorySampleOld(int min,int max,int val,int range);
 QByteArray splitTime(int val);
 int getPressure(int val);
 int getOilResistor(int val);
