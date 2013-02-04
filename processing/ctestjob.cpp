@@ -660,7 +660,7 @@ void CTestJob::initFrame80(PLCCommandFrame_0x80* a)
 
     for(int i=0;i<10;i++)
         a->ioo[i] = 0xFF;
-
+/*
     for(int i=0;i<_mconfig->_map_ioin.size();i++)
     {
         int j = _mconfig->_map_ioin[i];
@@ -688,7 +688,7 @@ void CTestJob::initFrame80(PLCCommandFrame_0x80* a)
             a->ioo[n] |= 1<<(2*o);
         }
     }
-
+*/
     //***功能全检状态下，置高仪表ACC和ON开关量
     if(_jtype == FUNCTIONTEST_ID)
     {

@@ -23,7 +23,10 @@ public:
     CMeterConfig           *cf;
     QTimer      *_timer;
 
-    void setMap(PLCCommandFrame_0x80* a,int i);
+    void setMap(PLCCommandFrame_0x80* a, int i, int id=-1);
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
 
 signals:
     void newMessage(QString msg, bool showOnScreen=0);

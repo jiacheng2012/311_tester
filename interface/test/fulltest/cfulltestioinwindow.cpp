@@ -25,7 +25,7 @@ CFullTestIOInWindow::CFullTestIOInWindow(QWidget *parent) :
             _tempLabel->setFixedSize(40,40);
             _vec32IO.push_back(_tempLabel);
         }
-        _testButton = new QPushButton(tr("开始检测"));
+        _testButton = new QPushButton(tr("开始自动检测"));
         _statusLabel = new QLabel(tr("IO输入测试按照5秒钟间隔高低电平轮流发送。"));
         _statusLabel->setStyleSheet("font:bold 16px;color:#0099FF;max-height:26px;min-height:26px;background:#CCFF99;");
         _statusLabel_1 = new QLabel(tr("当前电平为："));
@@ -50,6 +50,7 @@ CFullTestIOInWindow::CFullTestIOInWindow(QWidget *parent) :
             else
                 io->setStyleSheet("background-color:blue;");
 
+            _vec32IO[i]->installEventFilter(this);
             _tempVLay->addWidget(new QLabel("I/O量"+QString("%1").arg(i)));
             _tempVLay->addWidget(_vec32IO.at(i));
             _tempVLay->addWidget(io);
@@ -199,11 +200,37 @@ void CFullTestIOInWindow::sendBackData232(QByteArray a)
     }
 }
 
-void CFullTestIOInWindow::setMap(PLCCommandFrame_0x80* a,int label)
+void CFullTestIOInWindow::setMap(PLCCommandFrame_0x80* a,int label,int id)
 {
-    for(int i=0;i<_ioItemCount;i++)
+    if(id==-1)
     {
-        int j = cf->_map_ioin[i];
+        for(int i=0;i<_ioItemCount;i++)
+        {
+            int j = cf->_map_ioin[i];
+            int d = (int)(j/4);
+            int r = j - d*4;
+
+            a->ioo[d] &= ~(3<<(2*r));
+            if(label==1)
+                a->ioo[d] |= 2<<(2*r);
+            else
+                a->ioo[d] |= 1<<(2*r);
+
+            //***差分IO
+            int kk = ((CApp*)qApp)->_tjob->getIOInMapDifference(i);
+            if(kk!=-1)
+            {
+                int n = (int)(kk/4);
+                int o = kk - n*4;
+
+                a->ioo[n] &= ~(3<<(2*o));
+                a->ioo[n] |= 1<<(2*o);
+            }
+        }
+    }
+    else
+    {
+        int j = cf->_map_ioin[id];
         int d = (int)(j/4);
         int r = j - d*4;
 
@@ -214,7 +241,7 @@ void CFullTestIOInWindow::setMap(PLCCommandFrame_0x80* a,int label)
             a->ioo[d] |= 1<<(2*r);
 
         //***差分IO
-        int kk = ((CApp*)qApp)->_tjob->getIOInMapDifference(i);
+        int kk = ((CApp*)qApp)->_tjob->getIOInMapDifference(id);
         if(kk!=-1)
         {
             int n = (int)(kk/4);
@@ -224,4 +251,58 @@ void CFullTestIOInWindow::setMap(PLCCommandFrame_0x80* a,int label)
             a->ioo[n] |= 1<<(2*o);
         }
     }
+}
+
+bool CFullTestIOInWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    //***圆圈QLabel 点击事件处理
+    if(!property("testFlag").toBool())
+    {
+        //***PLC
+        PLCCommandFrame_0x80 c={0};
+        ((CApp*)qApp)->_tjob->initFrame80(&c);
+        //***仪表
+        hardwareTestFrame_0x30 b={_METER_FRAME_HARDWARE_TEST_,0x00};
+        QByteArray tmp1=QByteArray::fromRawData((const char*)&b,sizeof(b));
+        ((CApp*)qApp)->_tjob->sendTestData232(tmp1);
+
+        if (event->type() == QEvent::MouseButtonPress)
+        {
+            for(int i=0;i<_vec32IO.size();i++)
+            {
+                if(obj == _vec32IO[i])
+                {
+                    if(property("in").toInt())
+                    {
+                        setProperty("in",0);
+
+                        setMap(&c,0,i);
+                        c.ifeedback = _bReadCurrent->isChecked()?0x1:0x0;
+                        QByteArray tmp2=QByteArray::fromRawData((const char*)&c,sizeof(c));
+                        ((CApp*)qApp)->_tjob->sendTestData485(tmp2);
+
+                        _statusLabel->setText(tr("请观察低电平有效的IO量是否变红，同时观察相应的激励电流(mA)。"));
+                        _statusLabel_1->setText(tr("当前电平：低电平，当前IO通道：")+ QString::number(i));
+                    }
+                    else
+                    {
+                        setProperty("in",1);
+                        setMap(&c,1,i);
+                        c.ifeedback = _bReadCurrent->isChecked()?0x1:0x0;
+                        QByteArray tmp2=QByteArray::fromRawData((const char*)&c,sizeof(c));
+                        ((CApp*)qApp)->_tjob->sendTestData485(tmp2);
+
+                        _statusLabel->setText(tr("请观察高电平有效的IO量是否变红。"));
+                        _statusLabel_1->setText(tr("当前电平：高电平，当前IO通道：")+ QString::number(i));
+                    }
+
+                    break;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    return QWidget::eventFilter(obj, event);
 }
