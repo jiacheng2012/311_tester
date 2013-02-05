@@ -163,7 +163,7 @@ adjustSaveParaFrame_0x56_0x59 frame56_59FromData(QByteArray a)
     adjustSaveParaFrame_0x56_0x59 t;
 
     t.id = a[0];
-    t.start = a[1];
+    t.start = 0;//a[1];
     t.num = (a[2]>>4)&0x0F;
     t.channel = a[2]&0x0F;
 

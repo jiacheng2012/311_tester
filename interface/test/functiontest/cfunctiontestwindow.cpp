@@ -9,7 +9,7 @@ CFunctionTestWindow::CFunctionTestWindow(QWidget *parent) :
     _listLayout = new QListWidget;
     _listLayout->addItem(tr("测试介绍"));
     _listLayout->addItem(tr("下载应用参数"));
-//    _listLayout->addItem(tr("指示灯测试"));
+//  _listLayout->addItem(tr("指示灯测试"));
     _listLayout->addItem(tr("车速表测试"));
     _listLayout->addItem(tr("转速表测试"));
     _listLayout->addItem(tr("燃油表测试"));

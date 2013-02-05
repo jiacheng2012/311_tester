@@ -298,7 +298,7 @@ void CAdjustTestOilTableWindow::sendBackData(CDataFrame a)
                     b.value7[1] = tmp[1];
                 }
 
-                tmp=QByteArray::fromRawData((const char*)&b,sizeof(b)-(_MAX_MADJUST_POINT_-property("number").toInt())*4);
+                tmp=QByteArray::fromRawData((const char*)&b,sizeof(b));
                 ((CApp*)qApp)->_tjob->sendTestData232(tmp);
             }
         }
@@ -386,9 +386,9 @@ void CAdjustTestOilTableWindow::saveAllAdjustButtonClicked()
 
     adjustInitParaFrame_0x41 b={_METER_FRAME_INIT_PARA_ADJUST_,0x00};
     b.type = 0x2;
-    b.num_meter[0] = property("number").toInt();
 
     writeAdjustInitFrame(b);
+    b.num_meter[0] = property("number").toInt();
 
     _savaAllAdjustButton->setEnabled(false);
     _savaStatusLabel->setText(tr("参数保存中..."));

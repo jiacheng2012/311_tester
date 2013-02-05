@@ -53,6 +53,8 @@ public:
     QLineEdit   *_passwd,*_engineType,*_gearType;
 
     CMeterConfig* cf;
+    QCheckBox   *_timeSync;
+    QTimer      *_timer;
 
 
     void updateInterface();
@@ -66,6 +68,8 @@ public slots:
     void    writeButtonClicked();
     void    sendBackTestData_232(CDataFrame);
     void    delayWrite();
+    void    timerUpdate();
+    void    timeToggled(int);
 };
 
 #endif // CFUNCTIONTESTSETTINGWINDOW_H

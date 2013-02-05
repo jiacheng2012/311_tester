@@ -4,19 +4,20 @@
 CFullTestAnalogWindow::CFullTestAnalogWindow(QWidget *parent) :
     QWidget(parent)
 {
-    _id = -1;
-    _channel = -1;
-    _type = 0;
     setProperty("testFlag",0);
+    setProperty("channel",0);
+    setProperty("type",0);
+    setProperty("id",0);
+    setProperty("number",0);
 
     //***UI components
     QVBoxLayout *globalVLayout = new QVBoxLayout;
 
-    _statusLabel_0 = new QLabel(tr("选择通道的快捷键是 T，增加值的是 A，减少值是 Q。"));
+    _statusLabel_0 = new QLabel(tr("快捷键：通道选择 A(+) Q(-)，档位选择 W(+) S(-)"));
     _statusLabel_0->setStyleSheet("font:bold 16px;color:#0099FF;max-height:26px;min-height:26px;background:#CCFF99;");
     _channelSample = new QSpinBox();
-    _prvButton = new QPushButton(tr("上一通道"));
-    _nxtButton = new QPushButton(tr("下一通道"));
+    _prvButton = new QPushButton(tr("上一通道(A)"));
+    _nxtButton = new QPushButton(tr("下一通道(Q)"));
     _analogType = new QComboBox();
     _analogType->addItem(tr("电流 4~20mA"));
     _analogType->addItem(tr("电阻 0~500欧"));
@@ -30,7 +31,6 @@ CFullTestAnalogWindow::CFullTestAnalogWindow(QWidget *parent) :
     _nameLabel = new QLabel(tr("(mA)"));
     _statusLabel = new QLabel(tr("点击按钮进行测试"));
     _statusLabel->setStyleSheet("font:bold 16px;color:#0099FF;max-height:26px;min-height:26px;background:#CCFF99;");
-    _stopButton = new QPushButton(tr("停止所有测试"));
 
     for(int i=0; i < _MAX_ATEST_POINT_; ++i)
     {
@@ -72,7 +72,6 @@ CFullTestAnalogWindow::CFullTestAnalogWindow(QWidget *parent) :
         _theorySampleValue[i]->setEnabled(false);
         _resultGridLayout->addWidget(_startButton[i],5,i+2);
     }
-    _resultGridLayout->addWidget(_stopButton,6,_MAX_ATEST_POINT_+1);
     _mainVLayout->addWidget(_parmsetGroupBox);
 
     globalVLayout->addLayout(_mainVLayout);
@@ -80,25 +79,24 @@ CFullTestAnalogWindow::CFullTestAnalogWindow(QWidget *parent) :
     globalVLayout->setSizeConstraint(QLayout::SetFixedSize);
     globalVLayout->setContentsMargins(15,0,15,0);
     setLayout(globalVLayout);
-	_stopButton->setEnabled(false);
 
     //***signal
     connect(_channelSample,SIGNAL(valueChanged(int)),SLOT(channelChanged(int)));
     connect((CApp*)qApp,SIGNAL(sendBackFullTestData_analog_485(QByteArray)),this,SLOT(sendBackData485(QByteArray)));
     connect((CApp*)qApp,SIGNAL(sendBackFullTestData_analog_232(QByteArray)),this,SLOT(sendBackData232(QByteArray)));
-    connect(_stopButton,SIGNAL(clicked()),this,SLOT(stopButtonClicked()));
     connect(_prvButton,SIGNAL(clicked()),this,SLOT(prvButtonClicked()));
     connect(_nxtButton,SIGNAL(clicked()),this,SLOT(nxtButtonClicked()));
 
     cf = ((CApp*)qApp)->_tjob->_mconfig;
     _channelSample->setMinimum(0);
     _channelSample->setMaximum( cf->_channel_type.size()-1 );
+
     channelChanged(0);
 }
 
 void CFullTestAnalogWindow::prvButtonClicked()
 {
-    int c = _channel;
+    int c = property("channel").toInt();
 
     c--;
     if(c<0)
@@ -109,7 +107,7 @@ void CFullTestAnalogWindow::prvButtonClicked()
 
 void CFullTestAnalogWindow::nxtButtonClicked()
 {
-    int c = _channel;
+    int c =  property("channel").toInt();
 
     c++;
     if(c>=cf->_channel_type.size())
@@ -120,45 +118,20 @@ void CFullTestAnalogWindow::nxtButtonClicked()
 
 }
 
-void CFullTestAnalogWindow::stopButtonClicked()
-{
-    newMessage(tr("结束模拟量检测"));
-    setProperty("testFlag",0);
-    _stopButton->setEnabled(false);
-
-    //***仪表关闭功率负载开关
-    hardwareTestFrame_0x30 b={_METER_FRAME_HARDWARE_TEST_,0x00};
-    b.command[2]=0;
-
-    QByteArray tmp1=QByteArray::fromRawData((const char*)&b,sizeof(b));
-    ((CApp*)qApp)->_tjob->sendTestData232(tmp1);
-
-
-    //***PLC
-    PLCCommandFrame_0x80 c={0};
-    ((CApp*)qApp)->_tjob->initFrame80(&c);
-    c._12v = 0;
-    c._xxv = 2;
-    c.ioi[0] = 0;
-    c.ioi[1] = 0;
-
-    QByteArray tmp2=QByteArray::fromRawData((const char*)&c,sizeof(c));
-    ((CApp*)qApp)->_tjob->sendTestData485(tmp2);
-}
-
 void CFullTestAnalogWindow::channelChanged(int channel)
 {
     setProperty("testFlag",0);
     int i;
-    _channel= channel;
-    _type = cf->_channel_type[channel];
+    setProperty("channel",channel);
+    setProperty("type", cf->_channel_type[channel]);
+    setProperty("number",cf->_channel_value[channel].size());
 
-    _analogType->setCurrentIndex(_type);
+    _analogType->setCurrentIndex(property("type").toInt());
 
     _resultGridLayout->removeWidget(_currentItem);
     _resultGridLayout->addWidget(_currentItem,1,2);
 
-    for(i=0;i<cf->_channel_value[_channel].size();i++)
+    for(i=0;i<cf->_channel_value[channel].size();i++)
     {
         _startButton[i]->setEnabled(true);
         _actualSampleValue[i]->setEnabled(true);
@@ -166,13 +139,13 @@ void CFullTestAnalogWindow::channelChanged(int channel)
         _theorySampleValue[i]->setText("");
 
         _actualSampleValue[i]->setMaximum(1000000);
-        _actualSampleValue[i]->setValue(cf->_channel_value[_channel][i]);
-        if(_type==ATYPE_CURRENT)
+        _actualSampleValue[i]->setValue(cf->_channel_value[channel][i]);
+        if(property("type").toInt()==ATYPE_CURRENT)
         {
             _theorySampleValue[i]->setText( QString::number(
                                                 getTheorySample(cf->range_current_min,
                                                             cf->range_current_max,
-                                                            cf->_channel_value[_channel][i]*100,
+                                                            cf->_channel_value[channel][i]*100,
                                                             4096)
                                                 )
                                             );
@@ -180,12 +153,12 @@ void CFullTestAnalogWindow::channelChanged(int channel)
             _actualSampleValue[i]->setMaximum(20);
             _nameLabel->setText(tr("mA"));
         }
-        else if(_type==ATYPE_RESISTOR)
+        else if(property("type").toInt()==ATYPE_RESISTOR)
         {
             _theorySampleValue[i]->setText( QString::number(
                                                 getTheorySample(cf->range_resistor_min,
                                                             cf->range_resistor_max,
-                                                            cf->_channel_value[_channel][i]*10,
+                                                            cf->_channel_value[channel][i]*10,
                                                             4096)
                                                 )
                                             );
@@ -193,12 +166,12 @@ void CFullTestAnalogWindow::channelChanged(int channel)
             _actualSampleValue[i]->setMaximum(500);
             _nameLabel->setText(tr("Ω"));
         }
-        else if(_type==ATYPE_VOLTAGE)
+        else if(property("type").toInt()==ATYPE_VOLTAGE)
         {
             _theorySampleValue[i]->setText( QString::number(
                                                 getTheorySample(cf->range_voltage_min,
                                                             cf->range_voltage_max,
-                                                            cf->_channel_value[_channel][i]*10,
+                                                            cf->_channel_value[channel][i]*10,
                                                             4096)
                                                 )
                                             );
@@ -206,12 +179,12 @@ void CFullTestAnalogWindow::channelChanged(int channel)
             _actualSampleValue[i]->setMaximum(36);
             _nameLabel->setText(tr("V"));
         }
-        else if(_type==ATYPE_POWER)
+        else if(property("type").toInt()==ATYPE_POWER)
         {
             _theorySampleValue[i]->setText( QString::number(
                                                 getTheorySample(cf->range_power_min,
                                                             cf->range_power_max,
-                                                            cf->_channel_value[_channel][i]/10,
+                                                            cf->_channel_value[channel][i]/10,
                                                             4096)
                                                 )
                                             );
@@ -221,7 +194,7 @@ void CFullTestAnalogWindow::channelChanged(int channel)
         }
     }
 
-    for(i=cf->_channel_value[_channel].size();i<_MAX_ATEST_POINT_;i++)
+    for(i=cf->_channel_value[channel].size();i<_MAX_ATEST_POINT_;i++)
     {
         _startButton[i]->setEnabled(false);
         _actualSampleValue[i]->setEnabled(false);
@@ -229,10 +202,9 @@ void CFullTestAnalogWindow::channelChanged(int channel)
         _dashboardSampleValue[i]->setText("");
     }
 
-    _id=0;
-    setProperty("testFlag",0);
+    setProperty("id",0);
     _resultGridLayout->removeWidget(_currentItem);
-    _resultGridLayout->addWidget(_currentItem,1,_id+2);
+    _resultGridLayout->addWidget(_currentItem,1,property("id").toInt()+2);
 }
 
 void CFullTestAnalogWindow::startButtonClicked()
@@ -243,7 +215,7 @@ void CFullTestAnalogWindow::startButtonClicked()
     {
         if(sc ==_startButton[i])
         {
-            _id = i;
+            setProperty("id",i);
             break;
         }
     }
@@ -258,7 +230,7 @@ void CFullTestAnalogWindow::actualValueChanged(int index)
     {
         if(sc ==_actualSampleValue[i])
         {
-            _id = i;
+            setProperty("id",i);
             break;
         }
     }
@@ -270,13 +242,12 @@ void CFullTestAnalogWindow::actualValueChanged(int index)
 void CFullTestAnalogWindow::startTest()
 {
     setProperty("testFlag",1);
-    _stopButton->setEnabled(true);
 
-    if(_type==ATYPE_POWER)
+    if(property("type").toInt()==ATYPE_POWER)
     {
         //***仪表打开功率负载开关
         hardwareTestFrame_0x30 b={_METER_FRAME_HARDWARE_TEST_,0x00};
-        setBit(b.command[2],findChannelIndex(_type,_channel));
+        setBit(b.command[2],findChannelIndex(property("type").toInt(),property("channel").toInt()));
 
         QByteArray tmp1=QByteArray::fromRawData((const char*)&b,sizeof(b));
         ((CApp*)qApp)->_tjob->sendTestData232(tmp1);
@@ -292,7 +263,7 @@ void CFullTestAnalogWindow::startTest()
     }
 
     //***PLC
-    int val = _actualSampleValue[_id]->value();
+    int val = _actualSampleValue[property("id").toInt()]->value();
     PLCCommandFrame_0x80 c={0};
     ((CApp*)qApp)->_tjob->initFrame80(&c);
     setMap(&c,val);
@@ -301,7 +272,7 @@ void CFullTestAnalogWindow::startTest()
     ((CApp*)qApp)->_tjob->sendTestData485(tmp2);
 
     _resultGridLayout->removeWidget(_currentItem);
-    _resultGridLayout->addWidget(_currentItem,1,_id+2);
+    _resultGridLayout->addWidget(_currentItem,1,property("id").toInt()+2);
 }
 
 void CFullTestAnalogWindow::sendBackData485(QByteArray a)
@@ -319,51 +290,53 @@ void CFullTestAnalogWindow::sendBackData232(QByteArray a)
         double val;
         hardwareTestRespondFrame_0x20 rt = frame20FromData(a);
 
-        _dashboardSampleValue[_id]->setText( QString::number(rt.ao[_channel]));
+        _dashboardSampleValue[property("id").toInt()]->setText( QString::number(rt.ao[property("channel").toInt()]));
 
-        double s = _theorySampleValue[_id]->text().toInt();
-        double b = rt.ao[_channel];
+        double s = _theorySampleValue[property("id").toInt()]->text().toInt();
+        double b = rt.ao[property("channel").toInt()];
         double e = b*SAMPLE_ERROR;
         if( fabs( s - b) > e )
         {
-            _statusLabel->setText(tr("当前测试通道为：") + QString::number(_channel) + tr(" ，理论采样值为：") +
-                                  QString::number(_theorySampleValue[_id]->text().toInt()) + tr(" ，实际采样值为：") +
-                                  QString::number(_dashboardSampleValue[_id]->text().toInt()) + tr(" ，测试正常。"));
+            _statusLabel->setStyleSheet("font:bold 16px;color:red;max-height:26px;min-height:26px;background:#CCFF99;");
+            _statusLabel->setText(tr("当前测试通道为：") + QString::number(property("channel").toInt()) + tr(" ，理论采样值为：") +
+                                  QString::number(_theorySampleValue[property("id").toInt()]->text().toInt()) + tr(" ，实际采样值为：") +
+                                  QString::number(_dashboardSampleValue[property("id").toInt()]->text().toInt()) + tr(" ，测试不正常。"));
         }
         else
         {
-            _statusLabel->setText(tr("当前测试通道为：") + QString::number(_channel) + tr(" ，理论采样值为：") +
-                                  QString::number(_theorySampleValue[_id]->text().toInt()) + tr(" ，实际采样值为：") +
-                                  QString::number(_dashboardSampleValue[_id]->text().toInt()) + tr(" ，测试正常。"));
+            _statusLabel->setStyleSheet("font:bold 16px;color:#0099FF;max-height:26px;min-height:26px;background:#CCFF99;");
+            _statusLabel->setText(tr("当前测试通道为：") + QString::number(property("channel").toInt()) + tr(" ，理论采样值为：") +
+                                  QString::number(_theorySampleValue[property("id").toInt()]->text().toInt()) + tr(" ，实际采样值为：") +
+                                  QString::number(_dashboardSampleValue[property("id").toInt()]->text().toInt()) + tr(" ，测试正常。"));
         }
     }
 }
 
 void CFullTestAnalogWindow::setMap(PLCCommandFrame_0x80* a,int val)
 {
-    if(_type==ATYPE_CURRENT)
+    if(property("type").toInt()==ATYPE_CURRENT)
     {
         a->_xxv = 0x2;
         a->_12v = 0x1;
-        int k = findChannelIndex(_type,_channel);
+        int k = findChannelIndex(property("type").toInt(),property("channel").toInt());
         int j = cf->_map_current[k];
         a->curout[j] = val*10;
     }
-    else if(_type==ATYPE_RESISTOR)
+    else if(property("type").toInt()==ATYPE_RESISTOR)
     {
         a->_xxv = 0x2;
         a->_12v = 0x1;
-        int k = findChannelIndex(_type,_channel);
+        int k = findChannelIndex(property("type").toInt(),property("channel").toInt());
         int j = cf->_map_resistor[k];
         if(calResistor(val)==0xFF)
             newMessage(tr("所选阻值硬件无法实现，请重新选择！"),1);
         else
             a->resout[j] = calResistor(val);
     }
-    else if(_type==ATYPE_VOLTAGE)
+    else if(property("type").toInt()==ATYPE_VOLTAGE)
     {
     //***特殊仪表内部采样电压通道
-        if( findMeterVoltageSampleChannel(_type,_channel) )
+        if( findMeterVoltageSampleChannel(property("type").toInt(),property("channel").toInt()) )
         {
             a->_12v = 0x1;
             if(val==12)
@@ -380,21 +353,21 @@ void CFullTestAnalogWindow::setMap(PLCCommandFrame_0x80* a,int val)
         }
         else
         {
-            int k = findChannelIndex(_type,_channel);
+            int k = findChannelIndex(property("type").toInt(),property("channel").toInt());
             int j = cf->_map_voltage[k];
             QByteArray tmp = arrangeByte(val*10,2);
             a->vout[j*2] = tmp[0];
             a->vout[j*2+1] = tmp[1];
         }
     }
-    else if(_type==ATYPE_POWER)
+    else if(property("type").toInt()==ATYPE_POWER)
     {
         a->_12v = 0x1;
         a->_xxv = 0x2;
-        int k = findChannelIndex(_type,_channel);
+        int k = findChannelIndex(property("type").toInt(),property("channel").toInt());
         int j = cf->_map_power[k];
 
-        QByteArray b = setupLoader(val,_type,k);
+        QByteArray b = setupLoader(val,property("type").toInt(),k);
         a->ioi[0] = b[0];
         a->ioi[1] = b[1];
     }
@@ -512,4 +485,49 @@ QByteArray CFullTestAnalogWindow::setupLoader(int val,int type,int channel)
     a[1] = a1;
 
     return a;
+}
+
+/*快捷键*/
+void CFullTestAnalogWindow::keyReleaseEvent(QKeyEvent *event)
+{
+    if (!event->isAutoRepeat())
+    {
+        if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
+        {
+
+        }
+        else if (event->modifiers() == Qt::NoModifier && event->key() == Qt::Key_S)
+        {
+            setProperty("testFlag",1);
+            if(property("id").toInt() == 0)
+            {
+                setProperty("id", property("number").toInt() - 1);
+            }
+            else
+                setProperty("id", property("id").toInt() - 1);
+
+            _actualSampleValue[property("id").toInt()]->setFocus();
+            startTest();
+        }
+        else if (event->modifiers() == Qt::NoModifier && event->key() == Qt::Key_W)
+        {
+            setProperty("testFlag",1);
+            if(property("id").toInt() == property("number").toInt() - 1)
+            {
+                setProperty("id", 0);
+            }
+            else
+                setProperty("id", property("id").toInt() + 1);
+            _actualSampleValue[property("id").toInt()]->setFocus();
+            startTest();
+        }
+        else if (event->modifiers() == Qt::NoModifier && event->key() == Qt::Key_A)
+        {
+            prvButtonClicked();
+        }
+        else if (event->modifiers() == Qt::NoModifier && event->key() == Qt::Key_Q)
+        {
+            nxtButtonClicked();
+        }
+    }
 }

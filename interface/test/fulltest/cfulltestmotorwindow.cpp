@@ -46,12 +46,12 @@ CFullTestMotorWindow::CFullTestMotorWindow(QWidget *parent) :
     _mainLayout->setSizeConstraint(QLayout::SetFixedSize);
     setLayout(_mainLayout);
     //***Signal
-     connect(_motorButton0,SIGNAL(clicked()),this,SLOT(motorButton0Clicked()));
-     connect(_motorButton1,SIGNAL(clicked()),this,SLOT(motorButton1Clicked()));
-     connect(_motorButton2,SIGNAL(clicked()),this,SLOT(motorButton2Clicked()));
-     connect(_motorButton3,SIGNAL(clicked()),this,SLOT(motorButton3Clicked()));
-     connect(_motorZeroButton,SIGNAL(clicked()),this,SLOT(motorZeroButtonClicked()));
-     connect(_motorAllButton,SIGNAL(clicked()),this,SLOT(motorAllButtonClicked()));
+    connect(_motorButton0,SIGNAL(clicked()),this,SLOT(motorButton0Clicked()));
+    connect(_motorButton1,SIGNAL(clicked()),this,SLOT(motorButton1Clicked()));
+    connect(_motorButton2,SIGNAL(clicked()),this,SLOT(motorButton2Clicked()));
+    connect(_motorButton3,SIGNAL(clicked()),this,SLOT(motorButton3Clicked()));
+    connect(_motorZeroButton,SIGNAL(clicked()),this,SLOT(motorZeroButtonClicked()));
+    connect(_motorAllButton,SIGNAL(clicked()),this,SLOT(motorAllButtonClicked()));
 
     cf = ((CApp*)qApp)->_tjob->_mconfig;
 }
@@ -65,10 +65,11 @@ void CFullTestMotorWindow::motorButton0Clicked()
         QByteArray tmp=QByteArray::fromRawData((const char*)&b,sizeof(b));
         ((CApp*)qApp)->_tjob->sendTestData232(tmp);
 
-        _motorButton0->setText(tr("停止电机0(油温)归零测试"));
+//        _motorButton0->setText(tr("停止电机0(油温)归零测试"));
+        _motorButton0->setEnabled(false);
         emit newMessage(tr("开始电机0(油温)归零测试"),0);
         setProperty("testFlag",1);
-    }
+    }/*
     else
     {
         hardwareTestFrame_0x30 b={_METER_FRAME_HARDWARE_TEST_,0x00};
@@ -78,7 +79,7 @@ void CFullTestMotorWindow::motorButton0Clicked()
 
         _motorButton0->setText(tr("开始电机0(油温)归零测试"));
         setProperty("testFlag",0);
-    }
+    }*/
 }
 
 void CFullTestMotorWindow::motorButton1Clicked()
@@ -90,10 +91,11 @@ void CFullTestMotorWindow::motorButton1Clicked()
         QByteArray tmp=QByteArray::fromRawData((const char*)&b,sizeof(b));
         ((CApp*)qApp)->_tjob->sendTestData232(tmp);
 
-        _motorButton1->setText(tr("停止电机1(转速)归零测试"));
+//        _motorButton1->setText(tr("停止电机1(转速)归零测试"));
+        _motorButton1->setEnabled(false);
         emit newMessage(tr("开始电机1(转速)归零测试"),0);
         setProperty("testFlag",1);
-    }
+    }/*
     else
     {
         hardwareTestFrame_0x30 b={_METER_FRAME_HARDWARE_TEST_,0x00};
@@ -103,7 +105,7 @@ void CFullTestMotorWindow::motorButton1Clicked()
 
         _motorButton1->setText(tr("开始电机1(转速)归零测试"));
         setProperty("testFlag",0);
-    }
+    }*/
 }
 
 void CFullTestMotorWindow::motorButton2Clicked()
@@ -115,10 +117,11 @@ void CFullTestMotorWindow::motorButton2Clicked()
         QByteArray tmp=QByteArray::fromRawData((const char*)&b,sizeof(b));
         ((CApp*)qApp)->_tjob->sendTestData232(tmp);
 
-        _motorButton2->setText(tr("停止电机2(水温)归零测试"));
+//        _motorButton2->setText(tr("停止电机2(水温)归零测试"));
+        _motorButton2->setEnabled(false);
         emit newMessage(tr("开始电机2(水温)归零测试"),0);
         setProperty("testFlag",1);
-    }
+    }/*
     else
     {
         hardwareTestFrame_0x30 b={_METER_FRAME_HARDWARE_TEST_,0x00};
@@ -128,7 +131,7 @@ void CFullTestMotorWindow::motorButton2Clicked()
 
         _motorButton2->setText(tr("开始电机2(水温)归零测试"));
         setProperty("testFlag",0);
-    }
+    }*/
 }
 
 void CFullTestMotorWindow::motorButton3Clicked()
@@ -140,10 +143,11 @@ void CFullTestMotorWindow::motorButton3Clicked()
         QByteArray tmp=QByteArray::fromRawData((const char*)&b,sizeof(b));
         ((CApp*)qApp)->_tjob->sendTestData232(tmp);
 
-        _motorButton3->setText(tr("停止电机3(车速)归零测试"));
+//        _motorButton3->setText(tr("停止电机3(车速)归零测试"));
+        _motorButton3->setEnabled(false);
         emit newMessage(tr("开始电机3(车速)归零测试"),0);
         setProperty("testFlag",1);
-    }
+    }/*
     else
     {
         hardwareTestFrame_0x30 b={_METER_FRAME_HARDWARE_TEST_,0x00};
@@ -153,7 +157,7 @@ void CFullTestMotorWindow::motorButton3Clicked()
 
         _motorButton3->setText(tr("开始电机3(车速)归零测试"));
         setProperty("testFlag",0);
-    }
+    }*/
 }
 
 void CFullTestMotorWindow::motorZeroButtonClicked()
@@ -168,10 +172,11 @@ void CFullTestMotorWindow::motorZeroButtonClicked()
         QByteArray tmp=QByteArray::fromRawData((const char*)&b,sizeof(b));
         ((CApp*)qApp)->_tjob->sendTestData232(tmp);
 
-        _motorZeroButton->setText(tr("停止所有电机归零测试"));
+//        _motorZeroButton->setText(tr("停止所有电机归零测试"));
+        _motorZeroButton->setEnabled(false);
         emit newMessage(tr("开始所有电机归零测试"),0);
         setProperty("testFlag",1);
-    }
+    }/*
     else
     {
         hardwareTestFrame_0x30 b={_METER_FRAME_HARDWARE_TEST_,0x00};
@@ -184,7 +189,7 @@ void CFullTestMotorWindow::motorZeroButtonClicked()
 
         _motorZeroButton->setText(tr("开始所有步进电机归零测试"));
         setProperty("testFlag",0);
-    }
+    }*/
 }
 
 void CFullTestMotorWindow::motorAllButtonClicked()
@@ -214,5 +219,47 @@ void CFullTestMotorWindow::motorAllButtonClicked()
 
 void CFullTestMotorWindow::sendBackData(QByteArray a)
 {
+    if(property("testFlag").toBool())
+    {
+        hardwareTestFrame_0x30 b={_METER_FRAME_HARDWARE_TEST_,0x00};
+        hardwareTestRespondFrame_0x20 rt = frame20FromData(a);
 
+        if(rt.motor0 == 0)
+        {
+            clearBit(b.command[0],2);
+            _motorButton0->setEnabled(true);
+            setProperty("testFlag",0);
+        }
+        else if(rt.motor1 == 0)
+        {
+            clearBit(b.command[0],3);
+            _motorButton1->setEnabled(true);
+            setProperty("testFlag",0);
+        }
+        else if(rt.motor2 == 0)
+        {
+            clearBit(b.command[0],4);
+            _motorButton2->setEnabled(true);
+            setProperty("testFlag",0);
+        }
+        else if(rt.motor3 == 0)
+        {
+            clearBit(b.command[0],5);
+            _motorButton3->setEnabled(true);
+            setProperty("testFlag",0);
+        }
+
+        if(rt.motor0 == 0 && rt.motor1 == 0 && rt.motor2 == 0 && rt.motor3 == 0)
+        {
+            clearBit(b.command[0],2);
+            clearBit(b.command[0],3);
+            clearBit(b.command[0],4);
+            clearBit(b.command[0],5);
+            _motorZeroButton->setEnabled(true);
+            setProperty("testFlag",0);
+        }
+
+        QByteArray tmp=QByteArray::fromRawData((const char*)&b,sizeof(b));
+        ((CApp*)qApp)->_tjob->sendTestData232(tmp);
+    }
 }

@@ -16,7 +16,7 @@ public:
     int _ioItemCount ; //总共32路
 
     QVector<QLabel *> _vec32IO; //32路IO 圆形指示
-    QPushButton *_testButton;  //32路IO输入量测试
+    QPushButton *_testButton1,*_testButton2;  //32路IO输入量测试
     QCheckBox           *_bReadCurrent;//读取激励电流
     QLabel              *_statusLabel,*_statusLabel_1;
 
@@ -33,10 +33,10 @@ signals:
     void nextList(int);
 
 public slots:
-    void testButtonClicked();
+    void testButton1Clicked();
+    void testButton2Clicked();
     void sendBackData232(QByteArray);
     void sendBackData485(QByteArray);
-    void timerUpdate();
 };
 
 #endif

@@ -359,7 +359,7 @@ void CAdjustTestAnalogWindow::sendBackData232(CDataFrame a)
                     b.data[i*4+3] = tmp[1];
                 }
 
-                tmp=QByteArray::fromRawData((const char*)&b,sizeof(b)-(_MAX_AADJUST_POINT_-property("number").toInt())*4);
+                tmp=QByteArray::fromRawData((const char*)&b,sizeof(b));
                 ((CApp*)qApp)->_tjob->sendTestData232(tmp);
             }
         }

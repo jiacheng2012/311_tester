@@ -224,6 +224,9 @@ CFunctionTestSettingWindow::CFunctionTestSettingWindow(QWidget *parent) :
     _second = new QSpinBox;
     _second->setMinimum(0);
     _second->setMaximum(60);
+    _timeSync = new QCheckBox(tr("同步电脑时间"));
+    _timeSync->setChecked(true);
+
     QGroupBox *group3_3 = new QGroupBox(tr("仪表时间"));
     QGridLayout *grid3_3 = new QGridLayout(group3_3);
     grid3_3->addWidget(new QLabel(tr("年")),0,0);
@@ -239,6 +242,7 @@ CFunctionTestSettingWindow::CFunctionTestSettingWindow(QWidget *parent) :
     grid3_3->addWidget(_hour,3,1);
     grid3_3->addWidget(_minute,4,1);
     grid3_3->addWidget(_second,5,1);
+    grid3_3->addWidget(_timeSync,6,0,1,2);
 
     _oilBias = new QSpinBox;
     _oilBias->setMinimum(-2000);
@@ -294,12 +298,37 @@ CFunctionTestSettingWindow::CFunctionTestSettingWindow(QWidget *parent) :
     setLayout(mainVLayout);
 
     //***signals
+    connect(_timeSync,SIGNAL(stateChanged(int)),this,SLOT(timeToggled(int)));
     connect(_readButton,SIGNAL(clicked()),this,SLOT(readButtonClicked()));
     connect(_writeButton,SIGNAL(clicked()),this,SLOT(writeButtonClicked()));
     connect(((CApp*)qApp),SIGNAL(sendBackFunctionTestData_232(CDataFrame)),this,SLOT(sendBackTestData_232(CDataFrame)));
 
     cf = ((CApp*)qApp)->_tjob->_mconfig;
+    _timer = new QTimer;
+    connect(_timer,SIGNAL(timeout()),this,SLOT(timerUpdate()));
     updateInterface();
+    _timer->start(1000);
+}
+
+void CFunctionTestSettingWindow::timerUpdate()
+{
+    QDateTime a = QDateTime::currentDateTime();
+
+    _year->setValue(a.date().year());
+    _month->setValue(a.date().month());
+    _day->setValue(a.date().day());
+
+    _hour->setValue(a.time().hour());
+    _minute->setValue(a.time().minute());
+    _second->setValue(a.time().second());
+}
+
+void CFunctionTestSettingWindow::timeToggled(int st)
+{
+    if(st == Qt::Unchecked)
+        _timer->stop();
+    else
+        _timer->start(1000);
 }
 
 void CFunctionTestSettingWindow::writeButtonClicked()

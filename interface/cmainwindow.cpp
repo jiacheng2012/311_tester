@@ -145,12 +145,12 @@ void CMainWindow::closeEvent(QCloseEvent *event)
         }
         else if (iRet == QMessageBox::Yes)
         {
-            ((CApp*)qApp)->deleteJob();
             stackedLayout->removeWidget(widget);
             widget->deleteLater();
             stackedLayout->setCurrentIndex(1);
             minimizeWindow();
             event->ignore();
+            ((CApp*)qApp)->deleteJob();
             return;
         }
     }

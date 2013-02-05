@@ -23,9 +23,6 @@ public:
 
     QGridLayout     *_resultGridLayout;
 
-    QPushButton     *_stopButton;
-
-    int             _id,_channel,_type;
     CMeterConfig    *cf;
 
     void setMap(PLCCommandFrame_0x80* a,int val);
@@ -35,7 +32,8 @@ public:
     void startTest();
 
     QPushButton     *_prvButton,*_nxtButton;
-
+protected:
+    void keyReleaseEvent(QKeyEvent *event);
 signals:
     void newMessage(QString msg, bool showOnScreen=0);
     void nextList(int);
@@ -46,7 +44,6 @@ public slots:
     void sendBackData485(QByteArray);
     void sendBackData232(QByteArray);
     void actualValueChanged(int index);
-    void stopButtonClicked();
     void prvButtonClicked();
     void nxtButtonClicked();
     
